@@ -11,7 +11,7 @@ PushKit_SilentPushNotification to receive VOIP call while iOS app is in backgrou
 ![2](https://cloud.githubusercontent.com/assets/23353196/22063152/4d4d79be-dda3-11e6-8081-1985fe326f44.png)
 
 
-- Use this sendSilenPush.php file
+# - Use this sendSilenPush.php file
 
 <?php
 
@@ -75,11 +75,11 @@ echo 'Message successfully delivered' . PHP_EOL;
 fclose($fp);
 
 
-- Use below commands to create pem file and use it in above code
+# - Use below commands to create pem file and use it in above code
 
 $ openssl x509 -in aps_development.cer -inform der -out PushCert.pem
 
-# Convert .p12 to .pem. Enter your pass pharse which is the same pwd that you have given while creating the .p12 certificate. PEM pass phrase also same as .p12 cert.  
+// Convert .p12 to .pem. Enter your pass pharse which is the same pwd that you have given while creating the .p12 certificate. PEM pass phrase also same as .p12 cert.  
 $ openssl pkcs12 -nocerts -out PushKey1.pem -in pushkey.p12
 
 Enter Import Password:
@@ -90,12 +90,12 @@ Enter PEM pass phrase:
 
 Verifying - Enter PEM pass phrase:
 
-# To remove passpharse for the key to access globally. This only solved my stream_socket_client() & certificate capath warnings.
+// To remove passpharse for the key to access globally. This only solved my stream_socket_client() & certificate capath warnings.
 $ openssl rsa -in PushKey1.pem -out PushKey1_Rmv.pem
 
 Enter pass phrase for PushChatKey1.pem:
 
 writing RSA key
 
-# To join the two .pem file into one file:
+// To join the two .pem file into one file:
 $ cat PushCert.pem PushKey1_Rmv.pem > ApnsDev.pem
