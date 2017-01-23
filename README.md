@@ -1,6 +1,7 @@
 # PushKit_SilentPushNotification
 
 PushKit_SilentPushNotification to receive VOIP call while iOS app is in background or terminated state
+You can also use pushkit silent push notification for other use like updating local database without opening app etc, you have keep your app in special category and take approvals from Apple.
 
 - Swift language
 - Pushkit
