@@ -15,7 +15,7 @@ You can also use pushkit silent push notification for other use like updating lo
 
 
 # - Use this sendSilenPush.php file
-
+```
 <?php
 
 // Put your device token here (without spaces):
@@ -76,10 +76,11 @@ echo 'Message successfully delivered' . PHP_EOL;
 
 // Close the connection to the server
 fclose($fp);
-
+```
 
 # - Use below commands to create pem file and use it in above code
 
+```
 $ openssl x509 -in aps_development.cer -inform der -out PushCert.pem
 
 // Convert .p12 to .pem. Enter your pass pharse which is the same pwd that you have given while creating the .p12 certificate. PEM pass phrase also same as .p12 cert.  
@@ -102,3 +103,12 @@ writing RSA key
 
 // To join the two .pem file into one file:
 $ cat PushCert.pem PushKey1_Rmv.pem > ApnsDev.pem
+```
+
+# - Debug pushkit notification in terminated state
+```
+Put debug pointer on delegate methods, Go to edit scheme, select run option then Launch -> Wait for executable to be launched. Send push kit payload from back end, once you get payload on device, it will automatically invoke and debug pointer will invoke at delegate methods.
+```
+
+![screen shot 2017-03-03 at 3 47 08 pm](https://cloud.githubusercontent.com/assets/23353196/24032539/9015a508-0b0e-11e7-86cf-5cec7ddbeea4.png)
+
