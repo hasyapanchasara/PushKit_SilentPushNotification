@@ -107,7 +107,12 @@ $ cat PushCert.pem PushKey1_Rmv.pem > ApnsDev.pem
 
 # - Debug pushkit notification in terminated state
 ```
-Put debug pointer on delegate methods, Go to edit scheme, select run option then Launch -> Wait for executable to be launched. Send push kit payload from back end, once you get payload on device, it will automatically invoke and debug pointer will invoke at delegate methods.
+- Put debug pointer on delegate methods
+- Go to edit scheme
+- Select run option then Launch -> Wait for executable to be launched
+- Send push kit payload from back end
+- Once you get payload on device
+- it will automatically invoke and debug pointer will invoke at delegate methods.
 ```
 
 ![screen shot 2017-03-03 at 3 47 08 pm](https://cloud.githubusercontent.com/assets/23353196/24032539/9015a508-0b0e-11e7-86cf-5cec7ddbeea4.png)
