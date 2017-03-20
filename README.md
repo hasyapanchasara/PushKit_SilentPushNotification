@@ -14,7 +14,7 @@ You can also use pushkit silent push notification for other use like updating lo
 ![2](https://cloud.githubusercontent.com/assets/23353196/22063152/4d4d79be-dda3-11e6-8081-1985fe326f44.png)
 
 
-# - Use this sendSilenPush.php file
+# Use this sendSilenPush.php file
 ```
 <?php
 
@@ -78,7 +78,7 @@ echo 'Message successfully delivered' . PHP_EOL;
 fclose($fp);
 ```
 
-# - Use below commands to create pem file and use it in above code
+# Use below commands to create pem file and use it in above code
 
 ```
 $ openssl x509 -in aps_development.cer -inform der -out PushCert.pem
@@ -105,7 +105,7 @@ writing RSA key
 $ cat PushCert.pem PushKey1_Rmv.pem > ApnsDev.pem
 ```
 
-# - Debug pushkit notification in terminated state
+# Debug pushkit notification in terminated state
 ```
 - Put debug pointer on delegate methods
 - Go to edit scheme
@@ -117,3 +117,29 @@ $ cat PushCert.pem PushKey1_Rmv.pem > ApnsDev.pem
 
 ![screen shot 2017-03-03 at 3 47 08 pm](https://cloud.githubusercontent.com/assets/23353196/24032539/9015a508-0b0e-11e7-86cf-5cec7ddbeea4.png)
 
+# Life cycle of app - when app is in terminated and push kit payload comes
+
+- First of all
+```
+    didFinishLaunchingWithOptions // will invoke
+```
+- Then 
+```
+    didReceiveIncomingPushWithPayload // payload method gets invoke
+```
+- Then if you have local notification
+```
+    didReceiveLocalNotification  // receive local notification
+```
+- Then 
+```    
+    handleActionWithIdentifier // handler method if you have action buttons ( local )
+```
+- Then if you have remote notification
+```
+    didReceiveRemoteNotification // receive remote notification
+```
+- Then 
+```
+    handleActionWithIdentifier // handler method if you have action buttons ( remote ) 
+```
