@@ -14,6 +14,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate,PKPushRegistryDelegate {
 
     var window: UIWindow?
 
+    var isUserHasLoggedInWithApp: Bool = true
+    var checkForIncomingCall: Bool = true
+    var userIsHolding: Bool = true
 
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
 
@@ -68,7 +71,52 @@ class AppDelegate: UIResponder, UIApplicationDelegate,PKPushRegistryDelegate {
     
     @available(iOS 8.0, *)
     func pushRegistry(registry: PKPushRegistry!, didReceiveIncomingPushWithPayload payload: PKPushPayload!, forType type: String!) {
+        
         // Process the received push
+        
+        // Below process is specific to schedule local notification once pushkit payload received
+        
+        var arrTemp = [NSObject : AnyObject]()
+        arrTemp = payload.dictionaryPayload
+        
+        let dict : Dictionary <String, AnyObject> = arrTemp["aps"] as! Dictionary<String, AnyObject>
+        
+        
+        if isUserHasLoggedInWithApp // Check this flag then only proceed
+        {
+            
+            if UIApplication.sharedApplication().applicationState == UIApplicationState.Background || UIApplication.sharedApplication().applicationState == UIApplicationState.Inactive
+            {
+                
+                if checkForIncomingCall // Check this flag to know incoming call or something else
+                {
+                    
+                    var strTitle : String = dict["alertTitle"] as? String ?? ""
+                    let strBody : String = dict["alertBody"] as? String ?? ""
+                    strTitle = strTitle + "\n" + strBody
+                    
+                    let notificationIncomingCall = UILocalNotification()
+                    
+                    notificationIncomingCall.fireDate = NSDate(timeIntervalSinceNow: 1)
+                    notificationIncomingCall.alertBody =  strTitle
+                    notificationIncomingCall.alertAction = "Open"
+                    notificationIncomingCall.soundName = "SoundFile.mp3"
+                    notificationIncomingCall.category = dict["category"] as? String ?? ""
+
+                    //"As per payload you receive"
+                    notificationIncomingCall.userInfo = ["key1": "Value1"  ,"key2": "Value2" ]
+
+                    
+                    UIApplication.sharedApplication().scheduleLocalNotification(notificationIncomingCall)
+                    
+                }
+                else
+                {
+                    //  something else
+                }
+                
+            }
+        }
         
         
     }
