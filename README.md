@@ -13,6 +13,125 @@ You can also use pushkit silent push notification for other use like updating lo
 
 ![2](https://cloud.githubusercontent.com/assets/23353196/22063152/4d4d79be-dda3-11e6-8081-1985fe326f44.png)
 
+# Pushkit integration
+```
+import UIKit
+import PushKit
+
+@UIApplicationMain
+class AppDelegate: UIResponder, UIApplicationDelegate,PKPushRegistryDelegate {
+
+    var window: UIWindow?
+
+    var isUserHasLoggedInWithApp: Bool = true
+    var checkForIncomingCall: Bool = true
+    var userIsHolding: Bool = true
+
+    func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
+
+
+        let types: UIRemoteNotificationType = [.Alert, .Badge, .Sound]
+        application.registerForRemoteNotificationTypes(types)
+
+        self.PushKitRegistration()
+
+        return true
+    }
+
+    //MARK: - PushKitRegistration
+
+    func PushKitRegistration()
+    {
+
+        let mainQueue = dispatch_get_main_queue()
+        // Create a push registry object
+        if #available(iOS 8.0, *) {
+
+        let voipRegistry: PKPushRegistry = PKPushRegistry(queue: mainQueue)
+
+        // Set the registry's delegate to self
+
+        voipRegistry.delegate = self
+
+        // Set the push type to VoIP
+
+        voipRegistry.desiredPushTypes = [PKPushTypeVoIP]
+
+        } else {
+        // Fallback on earlier versions
+        }
+
+
+    }
+
+
+    @available(iOS 8.0, *)
+    func pushRegistry(registry: PKPushRegistry!, didUpdatePushCredentials credentials: PKPushCredentials!, forType type: String!) {
+        // Register VoIP push token (a property of PKPushCredentials) with server
+
+        let hexString : String = UnsafeBufferPointer<UInt8>(start: UnsafePointer(credentials.token.bytes),
+        count: credentials.token.length).map { String(format: "%02x", $0) }.joinWithSeparator("")
+
+        print(hexString)
+
+
+    }
+
+
+    @available(iOS 8.0, *)
+    func pushRegistry(registry: PKPushRegistry!, didReceiveIncomingPushWithPayload payload: PKPushPayload!, forType type: String!) {
+
+        // Process the received push
+
+        // Below process is specific to schedule local notification once pushkit payload received
+
+        var arrTemp = [NSObject : AnyObject]()
+        arrTemp = payload.dictionaryPayload
+
+        let dict : Dictionary <String, AnyObject> = arrTemp["aps"] as! Dictionary<String, AnyObject>
+
+
+        if isUserHasLoggedInWithApp // Check this flag then only proceed
+        {
+
+            if UIApplication.sharedApplication().applicationState == UIApplicationState.Background || UIApplication.sharedApplication().applicationState == UIApplicationState.Inactive
+            {
+
+                if checkForIncomingCall // Check this flag to know incoming call or something else
+                {
+
+                    var strTitle : String = dict["alertTitle"] as? String ?? ""
+                    let strBody : String = dict["alertBody"] as? String ?? ""
+                    strTitle = strTitle + "\n" + strBody
+
+                    let notificationIncomingCall = UILocalNotification()
+
+                    notificationIncomingCall.fireDate = NSDate(timeIntervalSinceNow: 1)
+                    notificationIncomingCall.alertBody =  strTitle
+                    notificationIncomingCall.alertAction = "Open"
+                    notificationIncomingCall.soundName = "SoundFile.mp3"
+                    notificationIncomingCall.category = dict["category"] as? String ?? ""
+
+                    //"As per payload you receive"
+                    notificationIncomingCall.userInfo = ["key1": "Value1"  ,"key2": "Value2" ]
+
+
+                    UIApplication.sharedApplication().scheduleLocalNotification(notificationIncomingCall)
+
+                }
+                else
+                {
+                    //  something else
+                }
+
+            }
+        }
+
+
+    }
+}
+
+```
 
 # Use this sendSilenPush.php file
 ```
