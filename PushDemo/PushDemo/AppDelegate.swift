@@ -21,8 +21,44 @@ class AppDelegate: UIResponder, UIApplicationDelegate,PKPushRegistryDelegate {
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
 
                
-        let types: UIRemoteNotificationType = [.Alert, .Badge, .Sound]
-        application.registerForRemoteNotificationTypes(types)
+        if #available(iOS 8.0, *){
+            
+            
+            let viewAccept = UIMutableUserNotificationAction()
+            viewAccept.identifier = "VIEW_ACCEPT"
+            viewAccept.title = "Accept"
+            viewAccept.activationMode = .Foreground
+            viewAccept.destructive = false
+            viewAccept.authenticationRequired =  false
+            
+            let viewDecline = UIMutableUserNotificationAction()
+            viewDecline.identifier = "VIEW_DECLINE"
+            viewDecline.title = "Decline"
+            viewDecline.activationMode = .Background
+            viewDecline.destructive = true
+            viewDecline.authenticationRequired = false
+            
+            let INCOMINGCALL_CATEGORY = UIMutableUserNotificationCategory()
+            INCOMINGCALL_CATEGORY.identifier = "INCOMINGCALL_CATEGORY"
+            INCOMINGCALL_CATEGORY.setActions([viewAccept,viewDecline], forContext: .Default)
+            
+            if application.respondsToSelector("isRegisteredForRemoteNotifications")
+            {
+                let categories = NSSet(array: [INCOMINGCALL_CATEGORY])
+                let types:UIUserNotificationType = ([.Alert, .Sound, .Badge])
+                
+                let settings:UIUserNotificationSettings = UIUserNotificationSettings(forTypes: types, categories: categories as? Set<UIUserNotificationCategory>)
+                
+                application.registerUserNotificationSettings(settings)
+                application.registerForRemoteNotifications()
+            }
+            
+        }
+        else{
+            let types: UIRemoteNotificationType = [.Alert, .Badge, .Sound]
+            application.registerForRemoteNotificationTypes(types)
+        }
+
         
         self.PushKitRegistration()
         
@@ -121,6 +157,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate,PKPushRegistryDelegate {
         
     }
     
+    //MARK: - Local Notification Methods
+    
+    func application(application: UIApplication, didReceiveLocalNotification notification: UILocalNotification){
+        
+        // Your interactive local notification events will be called at this place
+        
+    }
 
     func applicationWillResignActive(application: UIApplication) {
         // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.

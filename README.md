@@ -8,10 +8,8 @@ You can also use pushkit silent push notification for other use like updating lo
 - Objective C 
 - Pushkit
 - Handle VOIP based calls in background or terminate state
+- Local notification to schedule once pushkit payload receive
 
-![1](https://cloud.githubusercontent.com/assets/23353196/22063145/4997aeb6-dda3-11e6-9eee-5bab741840d3.png)
-
-![2](https://cloud.githubusercontent.com/assets/23353196/22063152/4d4d79be-dda3-11e6-8081-1985fe326f44.png)
 
 # Pushkit integration
 ```
@@ -30,14 +28,49 @@ class AppDelegate: UIResponder, UIApplicationDelegate,PKPushRegistryDelegate {
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
 
 
-        let types: UIRemoteNotificationType = [.Alert, .Badge, .Sound]
-        application.registerForRemoteNotificationTypes(types)
+        if #available(iOS 8.0, *){
+
+
+            let viewAccept = UIMutableUserNotificationAction()
+            viewAccept.identifier = "VIEW_ACCEPT"
+            viewAccept.title = "Accept"
+            viewAccept.activationMode = .Foreground
+            viewAccept.destructive = false
+            viewAccept.authenticationRequired =  false
+
+            let viewDecline = UIMutableUserNotificationAction()
+            viewDecline.identifier = "VIEW_DECLINE"
+            viewDecline.title = "Decline"
+            viewDecline.activationMode = .Background
+            viewDecline.destructive = true
+            viewDecline.authenticationRequired = false
+
+            let INCOMINGCALL_CATEGORY = UIMutableUserNotificationCategory()
+            INCOMINGCALL_CATEGORY.identifier = "INCOMINGCALL_CATEGORY"
+            INCOMINGCALL_CATEGORY.setActions([viewAccept,viewDecline], forContext: .Default)
+
+            if application.respondsToSelector("isRegisteredForRemoteNotifications")
+            {
+                let categories = NSSet(array: [INCOMINGCALL_CATEGORY])
+                let types:UIUserNotificationType = ([.Alert, .Sound, .Badge])
+
+                let settings:UIUserNotificationSettings = UIUserNotificationSettings(forTypes: types, categories: categories as? Set<UIUserNotificationCategory>)
+
+                application.registerUserNotificationSettings(settings)
+                application.registerForRemoteNotifications()
+            }
+
+        }
+        else{
+            let types: UIRemoteNotificationType = [.Alert, .Badge, .Sound]
+            application.registerForRemoteNotificationTypes(types)
+        }
+
 
         self.PushKitRegistration()
 
-        return true
+    return true
     }
-
     //MARK: - PushKitRegistration
 
     func PushKitRegistration()
@@ -129,9 +162,24 @@ class AppDelegate: UIResponder, UIApplicationDelegate,PKPushRegistryDelegate {
 
 
     }
+
+    //MARK: - Local Notification Methods
+
+    func application(application: UIApplication, didReceiveLocalNotification notification: UILocalNotification){
+
+        // Your interactive local notification events will be called at this place
+
+    }
+
+
 }
 
 ```
+
+![1](https://cloud.githubusercontent.com/assets/23353196/22063145/4997aeb6-dda3-11e6-9eee-5bab741840d3.png)
+
+![2](https://cloud.githubusercontent.com/assets/23353196/22063152/4d4d79be-dda3-11e6-8081-1985fe326f44.png)
+
 
 # Use this sendSilenPush.php file
 ```
