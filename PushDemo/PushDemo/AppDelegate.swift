@@ -18,7 +18,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate,PKPushRegistryDelegate {
     var checkForIncomingCall: Bool = true
     var userIsHolding: Bool = true
 
-    func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
 
                
         if #available(iOS 8.0, *){
@@ -27,27 +27,27 @@ class AppDelegate: UIResponder, UIApplicationDelegate,PKPushRegistryDelegate {
             let viewAccept = UIMutableUserNotificationAction()
             viewAccept.identifier = "VIEW_ACCEPT"
             viewAccept.title = "Accept"
-            viewAccept.activationMode = .Foreground
-            viewAccept.destructive = false
-            viewAccept.authenticationRequired =  false
+            viewAccept.activationMode = .foreground
+            viewAccept.isDestructive = false
+            viewAccept.isAuthenticationRequired =  false
             
             let viewDecline = UIMutableUserNotificationAction()
             viewDecline.identifier = "VIEW_DECLINE"
             viewDecline.title = "Decline"
-            viewDecline.activationMode = .Background
-            viewDecline.destructive = true
-            viewDecline.authenticationRequired = false
+            viewDecline.activationMode = .background
+            viewDecline.isDestructive = true
+            viewDecline.isAuthenticationRequired = false
             
             let INCOMINGCALL_CATEGORY = UIMutableUserNotificationCategory()
             INCOMINGCALL_CATEGORY.identifier = "INCOMINGCALL_CATEGORY"
-            INCOMINGCALL_CATEGORY.setActions([viewAccept,viewDecline], forContext: .Default)
+            INCOMINGCALL_CATEGORY.setActions([viewAccept,viewDecline], for: .default)
             
-            if application.respondsToSelector("isRegisteredForRemoteNotifications")
+            if application.responds(to: #selector(getter: UIApplication.isRegisteredForRemoteNotifications))
             {
                 let categories = NSSet(array: [INCOMINGCALL_CATEGORY])
-                let types:UIUserNotificationType = ([.Alert, .Sound, .Badge])
+                let types:UIUserNotificationType = ([.alert, .sound, .badge])
                 
-                let settings:UIUserNotificationSettings = UIUserNotificationSettings(forTypes: types, categories: categories as? Set<UIUserNotificationCategory>)
+                let settings:UIUserNotificationSettings = UIUserNotificationSettings(types: types, categories: categories as? Set<UIUserNotificationCategory>)
                 
                 application.registerUserNotificationSettings(settings)
                 application.registerForRemoteNotifications()
@@ -55,8 +55,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate,PKPushRegistryDelegate {
             
         }
         else{
-            let types: UIRemoteNotificationType = [.Alert, .Badge, .Sound]
-            application.registerForRemoteNotificationTypes(types)
+            let types: UIRemoteNotificationType = [.alert, .badge, .sound]
+            application.registerForRemoteNotifications(matching: types)
         }
 
         
@@ -70,7 +70,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate,PKPushRegistryDelegate {
     func PushKitRegistration()
     {
         
-        let mainQueue = dispatch_get_main_queue()
+        let mainQueue = DispatchQueue.main
         // Create a push registry object
         if #available(iOS 8.0, *) {
             
@@ -82,7 +82,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate,PKPushRegistryDelegate {
             
             // Set the push type to VoIP
             
-            voipRegistry.desiredPushTypes = [PKPushTypeVoIP]
+            voipRegistry.desiredPushTypes = [PKPushType.voIP]
             
         } else {
             // Fallback on earlier versions
@@ -93,26 +93,31 @@ class AppDelegate: UIResponder, UIApplicationDelegate,PKPushRegistryDelegate {
     
     
     @available(iOS 8.0, *)
-    func pushRegistry(registry: PKPushRegistry!, didUpdatePushCredentials credentials: PKPushCredentials!, forType type: String!) {
+    func pushRegistry(_ registry: PKPushRegistry, didUpdate credentials: PKPushCredentials, forType type: PKPushType) {
         // Register VoIP push token (a property of PKPushCredentials) with server
         
-        let hexString : String = UnsafeBufferPointer<UInt8>(start: UnsafePointer(credentials.token.bytes),
-            count: credentials.token.length).map { String(format: "%02x", $0) }.joinWithSeparator("")
+        print(credentials.token)
+
+        // Swift 2 format
+//        let hexString : String = UnsafeBufferPointer<UInt8>(start: UnsafePointer(credentials.token.bytes),
+//                                                            count: credentials.token.length).map { String(format: "%02x", $0) }.joinWithSeparator("")
         
-        print(hexString)
+        // Swift 4 format
         
+        let token = credentials.token.map { String(format: "%02x", $0) }.joined()
+        print(token)
         
     }
     
     
     @available(iOS 8.0, *)
-    func pushRegistry(registry: PKPushRegistry!, didReceiveIncomingPushWithPayload payload: PKPushPayload!, forType type: String!) {
+    func pushRegistry(_ registry: PKPushRegistry, didReceiveIncomingPushWith payload: PKPushPayload, forType type: PKPushType) {
         
         // Process the received push
         
         // Below process is specific to schedule local notification once pushkit payload received
         
-        var arrTemp = [NSObject : AnyObject]()
+        var arrTemp = [AnyHashable: Any]()
         arrTemp = payload.dictionaryPayload
         
         let dict : Dictionary <String, AnyObject> = arrTemp["aps"] as! Dictionary<String, AnyObject>
@@ -121,7 +126,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate,PKPushRegistryDelegate {
         if isUserHasLoggedInWithApp // Check this flag then only proceed
         {
             
-            if UIApplication.sharedApplication().applicationState == UIApplicationState.Background || UIApplication.sharedApplication().applicationState == UIApplicationState.Inactive
+            if UIApplication.shared.applicationState == UIApplicationState.background || UIApplication.shared.applicationState == UIApplicationState.inactive
             {
                 
                 if checkForIncomingCall // Check this flag to know incoming call or something else
@@ -133,7 +138,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate,PKPushRegistryDelegate {
                     
                     let notificationIncomingCall = UILocalNotification()
                     
-                    notificationIncomingCall.fireDate = NSDate(timeIntervalSinceNow: 1)
+                    notificationIncomingCall.fireDate = Date(timeIntervalSinceNow: 1)
                     notificationIncomingCall.alertBody =  strTitle
                     notificationIncomingCall.alertAction = "Open"
                     notificationIncomingCall.soundName = "SoundFile.mp3"
@@ -143,7 +148,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate,PKPushRegistryDelegate {
                     notificationIncomingCall.userInfo = ["key1": "Value1"  ,"key2": "Value2" ]
 
                     
-                    UIApplication.sharedApplication().scheduleLocalNotification(notificationIncomingCall)
+                    UIApplication.shared.scheduleLocalNotification(notificationIncomingCall)
                     
                 }
                 else
@@ -159,31 +164,31 @@ class AppDelegate: UIResponder, UIApplicationDelegate,PKPushRegistryDelegate {
     
     //MARK: - Local Notification Methods
     
-    func application(application: UIApplication, didReceiveLocalNotification notification: UILocalNotification){
+    func application(_ application: UIApplication, didReceive notification: UILocalNotification){
         
         // Your interactive local notification events will be called at this place
         
     }
 
-    func applicationWillResignActive(application: UIApplication) {
+    func applicationWillResignActive(_ application: UIApplication) {
         // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
         // Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
     }
 
-    func applicationDidEnterBackground(application: UIApplication) {
+    func applicationDidEnterBackground(_ application: UIApplication) {
         // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
         // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
     }
 
-    func applicationWillEnterForeground(application: UIApplication) {
+    func applicationWillEnterForeground(_ application: UIApplication) {
         // Called as part of the transition from the background to the inactive state; here you can undo many of the changes made on entering the background.
     }
 
-    func applicationDidBecomeActive(application: UIApplication) {
+    func applicationDidBecomeActive(_ application: UIApplication) {
         // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
     }
 
-    func applicationWillTerminate(application: UIApplication) {
+    func applicationWillTerminate(_ application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     }
 
