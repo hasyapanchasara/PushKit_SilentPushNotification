@@ -9,8 +9,11 @@ You can also use pushkit silent push notification for other use like updating lo
 - Swift language
 - Objective C 
 - Pushkit
+- VOIP integration
 - Handle VOIP based calls in background or terminate state
 - Local notification to schedule once pushkit payload receive
+- Integrate Pushkit in iOS App
+- Video call integration in iOS App
 
 
 # Pushkit integration
