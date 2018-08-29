@@ -184,9 +184,26 @@ class AppDelegate: UIResponder, UIApplicationDelegate,PKPushRegistryDelegate {
 
 ```
 
+# Create certificates from developer account
+
 ![1](https://cloud.githubusercontent.com/assets/23353196/22063145/4997aeb6-dda3-11e6-9eee-5bab741840d3.png)
 
+# Before XCode 9
+
 ![2](https://cloud.githubusercontent.com/assets/23353196/22063152/4d4d79be-dda3-11e6-8081-1985fe326f44.png)
+
+# With XCode 9+
+
+```
+<key>UIBackgroundModes</key>
+<array>
+    <string>audio</string>
+    <string>voip</string>
+    <string>fetch</string>
+    <string>remote-notification</string>
+</array>
+
+```
 
 
 # Use this sendSilenPush.php file
