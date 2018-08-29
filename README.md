@@ -194,6 +194,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate,PKPushRegistryDelegate {
 
 # With XCode 9+
 
+Open "Info.Plist" file as "Source Code" and add below "UIBackgroundModes" modes
+
 ```
 <key>UIBackgroundModes</key>
 <array>
